@@ -6,7 +6,7 @@ info:
     It allows users to register, log in, submit scores, and view leaderboards.
   version: 1.0.0
 servers:
-  - url: http://localhost:3001
+  - url: http://localhost:3001 # Port is configured via .env file
     description: Development server
 
 tags:

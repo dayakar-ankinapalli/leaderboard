@@ -1,0 +1,14 @@
+# Main application configuration
+database:
+  host: "db.example.com"
+  port: 5432
+  user: "admin"
+  password: "secure_password_placeholder" # Use secrets management in production!
+
+api_key: "abcdef1234567890"
+
+# Feature flags for the application
+features:
+  enable_beta_feature: true
+  enable_dark_mode: false
+  max_users: 1000

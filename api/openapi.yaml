@@ -1,0 +1,186 @@
+openapi: 3.0.3
+info:
+  title: Leaderboard API
+  description: |-
+    This is the API for the Leaderboard service.
+    It allows users to register, log in, submit scores, and view leaderboards.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3001
+    description: Development server
+
+tags:
+  - name: Authentication
+    description: Operations about user registration and login
+  - name: Leaderboard
+    description: Operations for submitting scores and viewing leaderboards
+
+paths:
+  /register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new user account.
+      requestBody:
+        description: User credentials for registration
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "c1a2b3d4-e5f6-7890-1234-567890abcdef"
+                  username:
+                    type: string
+                    example: "newuser"
+        '400':
+          description: Invalid input or user already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: Log in a user
+      description: Authenticates a user and returns a JWT.
+      requestBody:
+        description: User credentials for login
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+        '401':
+          description: Unauthorized - invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /scores:
+    post:
+      tags:
+        - Leaderboard
+      summary: Submit a score for a game
+      description: Submits a score for the authenticated user. Requires a valid JWT.
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: The score submission details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScoreSubmission'
+      responses:
+        '201':
+          description: Score submitted successfully
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /leaderboard/{game}:
+    get:
+      tags:
+        - Leaderboard
+      summary: Get the leaderboard for a game
+      description: Retrieves the top scores for a specified game.
+      parameters:
+        - name: game
+          in: path
+          required: true
+          description: The name of the game to retrieve the leaderboard for
+          schema:
+            type: string
+            example: "space_invaders"
+      responses:
+        '200':
+          description: A list of leaderboard entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaderboardEntry'
+
+components:
+  schemas:
+    Credentials:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: "player1"
+        password:
+          type: string
+          format: password
+          example: "s3cr3t_p@ssw0rd"
+    ScoreSubmission:
+      type: object
+      properties:
+        game:
+          type: string
+          example: "space_invaders"
+        score:
+          type: number
+          format: double
+          example: 12500.50
+    LeaderboardEntry:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "player1"
+        score:
+          type: number
+          format: double
+          example: 15000.0
+    AuthToken:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "An error occurred"
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

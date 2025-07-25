@@ -1,180 +1,69 @@
-# Real-Time Leaderboard Service
+# Realtime Leaderboard API
 
-This project is a backend system for a real-time leaderboard service built with Go and Redis. It allows users to register, log in, submit scores for games, and view a global leaderboard in real-time.
+This project is a Go-based backend service for a realtime leaderboard system. It provides a simple RESTful API for user registration, authentication, score submission, and leaderboard retrieval.
+
+This implementation is inspired by the [Realtime Leaderboard System project idea on roadmap.sh](https://roadmap.sh/projects/realtime-leaderboard-system).
 
 ## Features
 
--   User Registration and Login (JWT-based authentication)
--   Score Submission for different games
--   Real-time Global Leaderboard
--   Get User's Rank
--   Top N Players Report
--   Dockerized setup for easy deployment
+*   **User Authentication**: Secure user registration and login using JWT (JSON Web Tokens).
+*   **Score Submission**: Authenticated users can submit scores for various games.
+*   **Leaderboard Retrieval**: Fetch game-specific leaderboards, sorted by score.
+*   **Structured Logging**: Configurable JSON or text logging for better monitoring.
+*   **Graceful Shutdown**: The server shuts down gracefully, ensuring all requests are completed.
+*   **Configuration-driven**: All settings are managed via environment variables for easy deployment.
 
 ## Tech Stack
 
--   **Backend:** Go (Golang)
--   **Database/Cache:** Redis (for leaderboards and user storage)
--   **Router:** `gorilla/mux`
--   **Containerization:** Docker & Docker Compose
-
-## Prerequisites
-
--   Docker
--   Docker Compose
+*   **Backend**: Go (Golang) with the standard `net/http` library.
+*   **Database**: Redis for fast, in-memory data storage.
+*   **Containerization**: Docker & Docker Compose.
+*   **Configuration**: `godotenv` and `envconfig` for environment variable management.
 
 ## Getting Started
 
-1.  **Clone the repository:**
+Follow these instructions to get the project up and running on your local machine.
 
-    ```sh
-    git clone <repository-url>
-    cd leaderboard
-    ```
+### Prerequisites
 
-2.  **Run the application:**
+*   Go (version 1.20+)
+*   Docker and Docker Compose
 
-    Use Docker Compose to build and run the Go application and the Redis container.
+### 1. Clone the Repository
 
-    ```sh
-    docker-compose up --build
-    ```
-
-    The API will be available at `http://localhost:8080`.
-
-## API Endpoints
-
-All endpoints are prefixed with `/api`.
-
-### Authentication
-
-#### `POST /api/register`
-
-Register a new user.
-
-**Request Body:**
-
-```json
-{
-    "username": "newuser",
-    "password": "password123"
-}
+```bash
+git clone <your-repository-url>
+cd leaderboard
 ```
 
-**Response (Success 201):**
+### 2. Configure Environment Variables
 
-```json
-{
-    "message": "User registered successfully"
-}
+The application requires a set of environment variables to run. A template is provided in `.env.example`.
+
+Copy the example file to a new `.env` file:
+
+```bash
+cp .env.example .env
 ```
 
-#### `POST /api/login`
+You can modify the values in `.env` as needed. The default values are suitable for local development.
 
-Log in an existing user and get a JWT token.
+### 3. Run the Application
 
-**Request Body:**
+You can run the application using Docker Compose (recommended) or directly with Go.
 
-```json
-{
-    "username": "newuser",
-    "password": "password123"
-}
+**Using Docker Compose:**
+
+This is the easiest way to start the service, as it also manages the Redis container.
+
+```bash
+docker-compose up --build
 ```
 
-**Response (Success 200):**
+The API will be available at `http://localhost:3001`.
 
-```json
-{
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
+## API Documentation
 
-### Leaderboard
+The API is fully documented using the OpenAPI 3.0 standard. The specification can be found in the `openapi.yaml` file.
 
-*Note: The following endpoints require authentication. Include the JWT token in the `Authorization` header as a Bearer token.*
-
-`Authorization: Bearer <your-jwt-token>`
-
-#### `POST /api/scores`
-
-Submit a score for the logged-in user. The system uses the user's ID from the JWT token.
-
-**Request Body:**
-
-```json
-{
-    "game": "space-invaders",
-    "score": 150
-}
-```
-
-**Response (Success 200):**
-
-```json
-{
-    "message": "Score submitted successfully"
-}
-```
-
-#### `GET /api/leaderboard`
-
-Get the global leaderboard. By default, it returns the top 10 players.
-
-**Query Parameters:**
-
--   `limit` (optional): Number of top players to return. Default is 10.
-
-**Example:** `GET /api/leaderboard?limit=5`
-
-**Response (Success 200):**
-
-```json
-[
-    {
-        "username": "user1",
-        "score": 500
-    },
-    {
-        "username": "user2",
-        "score": 450
-    }
-]
-```
-
-#### `GET /api/rank`
-
-Get the rank of the currently logged-in user.
-
-**Response (Success 200):**
-
-```json
-{
-    "username": "newuser",
-    "rank": 5,
-    "score": 150
-}
-```
-
-#### `GET /api/report/top-players`
-
-This is an example of a report endpoint. It behaves similarly to the main leaderboard endpoint but could be extended for different time periods or games.
-
-**Query Parameters:**
-
--   `limit` (optional): Number of top players to return. Default is 10.
-
-**Response (Success 200):**
-
-```json
-[
-    {
-        "username": "user1",
-        "score": 500
-    },
-    {
-        "username": "user2",
-        "score": 450
-    }
-]
-```# leaderboard
+You can use tools like the Swagger Editor or Postman to import the `openapi.yaml` file and interact with the API.
